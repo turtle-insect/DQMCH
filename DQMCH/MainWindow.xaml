@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DQMCH"
         mc:Ignorable="d"
 		WindowStartupLocation="CenterScreen"
-        Title="MainWindow" Height="400" Width="500">
+        Title="GBA ドラゴンクエストモンスターズ　キャラバンハート SaveDate Editor" Height="400" Width="500">
 	<Window.DataContext>
 		<local:ViewModel/>
 	</Window.DataContext>
