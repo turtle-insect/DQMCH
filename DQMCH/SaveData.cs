@@ -27,31 +27,39 @@ namespace DQMCH
 		{
 			if (System.IO.File.Exists(filename) == false) return false;
 
-			var buffer = System.IO.File.ReadAllBytes(filename);
-            if (buffer.Length != 0x2000) return false;
-			// big endianness
-			// DQM30119
-			if (System.Text.Encoding.ASCII.GetString(buffer, 0, 8) != "91103MQD") return false;
+			mFileName = filename;
+			mBuffer = System.IO.File.ReadAllBytes(filename);
 
-			mBuffer = buffer;
-			if(force == false)
-			{
-				var sum = CalcCheckSum();
-				if ((sum & 0xFF) != buffer[0x1EB8])
-				{
-					mBuffer = null;
-					return false;
-				}
-				if (((sum >> 8) & 0xFF) != buffer[0x1EC7])
-				{
-					mBuffer = null;
-					return false;
-				}
+            if (force)
+            {
+				Backup();
+				return true;
 			}
 
-			mFileName = filename;
-			Backup();
-			return true;
+            // support retrofreak
+            uint[] baseAddress = { 0, 0x20000 };
+			foreach (var address in baseAddress)
+			{
+				Adventure = address;
+
+				// check header
+				// big endianness
+				// DQM30119
+				if (System.Text.Encoding.ASCII.GetString(ReadValue(0, 8)) != "91103MQD") continue;
+
+				// check sum
+				var sum = CalcCheckSum();
+				if ((sum & 0xFF) != ReadNumber(0x1EB8, 1)) continue;
+				if (((sum >> 8) & 0xFF) != ReadNumber(0x1EC7, 1)) continue;
+
+				// all ok
+				Backup();
+				return true;
+			}
+
+			mBuffer = null;
+			mFileName = "";
+			return false;
 		}
 
 		public bool Save()
@@ -59,8 +67,8 @@ namespace DQMCH
 			if (mFileName == null || mBuffer == null) return false;
 
 			var sum = CalcCheckSum();
-			mBuffer[0x1EB8] = (byte)(sum & 0xFF);
-			mBuffer[0x1EC7] = (byte)((sum >> 8) & 0xFF);
+			WriteNumber(0x1EB8, 1, (byte)(sum & 0xFF));
+			WriteNumber(0x1EC7, 1, (byte)((sum >> 8) & 0xFF));
 			System.IO.File.WriteAllBytes(mFileName, mBuffer);
 			return true;
 		}
@@ -206,9 +214,9 @@ namespace DQMCH
 			uint sum = 0;
 			for (uint index = 0; index < 0x1EC0; index++)
 			{
-				sum += mBuffer[index];
+				sum += ReadNumber(index, 1);
 			}
-			sum -= mBuffer[0x1EB8];
+			sum -= ReadNumber(0x1EB8, 1);
 			return sum;
 		}
 

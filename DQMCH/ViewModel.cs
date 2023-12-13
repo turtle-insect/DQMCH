@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows;
 
 namespace DQMCH
 {
@@ -49,6 +50,7 @@ namespace DQMCH
 				Stores.Add(new Store(item.Value));
 			}
 
+			Caravan.Clear();
 			uint count = SaveData.Instance().ReadNumber(0x788, 1);
 			for (uint i = 0; i < count; i++)
 			{
@@ -71,7 +73,10 @@ namespace DQMCH
 			var dlg = new OpenFileDialog();
 			if (dlg.ShowDialog() == false) return;
 
-			if(SaveData.Instance().Open(dlg.FileName, force) == false) return;
+			var result = SaveData.Instance().Open(dlg.FileName, force);
+			MessageBox.Show(result ? "OK" : "NG");
+			if (result == false) return;
+
 			Init();
 		}
 
