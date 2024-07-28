@@ -1,6 +1,6 @@
 ![DL Count](https://img.shields.io/github/downloads/turtle-insect/DQMCH/total.svg)
 
-# StarOcean2
+# 概要
 GBA ドラゴンクエストモンスターズ　キャラバンハート SaveDate Editor
 
 # Portal
